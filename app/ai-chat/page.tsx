@@ -8,12 +8,19 @@ const supabaseAnonKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYm
 
 const supabase = createClient(supabaseUrl, supabaseAnonKey);
 
+interface Document {
+  id: string;
+  content: string;
+  filename: string;
+  created_at: string;
+}
+
 export default function AIChatPage() {
-  const [user, setUser] = useState(null);
+  const [user, setUser] = useState<any>(null);
   const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
-  const [documents, setDocuments] = useState([]);
+  const [documents, setDocuments] = useState<Document[]>([]);
 
   useEffect(() => {
     const init = async () => {
@@ -53,7 +60,7 @@ export default function AIChatPage() {
           messages: [
             {
               role: 'system',
-              content: `You are Xbase AI. Answer using ONLY this: ${context || 'No documents yet.'} Be friendly.`
+              content: `You are Xbase AI. Answer using ONLY this information: ${context || 'No documents yet.'} Be friendly.`
             },
             { role: 'user', content: question }
           ],
@@ -64,7 +71,8 @@ export default function AIChatPage() {
       const data = await response.json();
       setAnswer(data.choices?.[0]?.message?.content || 'No response');
       
-    } catch (error) {
+    } catch (err) {
+      const error = err as Error;
       setAnswer('Error: ' + error.message);
     }
     
@@ -78,7 +86,7 @@ export default function AIChatPage() {
     <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-2xl shadow-lg p-8">
-          <h1 className="text-3xl font-bold text-green-700 text-center mb-2">🌳 Xbase AI</h1>
+          <h1 className="text-3xl font-bold text-green-700 text-center">🌳 Xbase AI</h1>
           <p className="text-gray-500 text-center mb-6">Test Your AI Agent</p>
           
           {documents.length === 0 && (
@@ -98,7 +106,7 @@ export default function AIChatPage() {
               placeholder="What's on your menu?"
               className="flex-1 p-3 border rounded-lg"
             />
-            <button onClick={askQuestion} className="bg-green-600 text-white px-6 py-3 rounded-lg">
+            <button onClick={askQuestion} className="bg-green-600 text-white px-6 py-3 rounded-lg hover:bg-green-700">
               Send
             </button>
           </div>
